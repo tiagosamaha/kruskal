@@ -1,28 +1,42 @@
-graph = [
-    (5, 'A', 'D'),
-    (7, 'A', 'B'),
-    (9, 'B', 'D'),
-    (15, 'D', 'E'),
-    (6, 'D', 'F'),
-    (8, 'F', 'E'),
-    (11, 'F', 'G'),
-    (9, 'G', 'E'),
-    (5, 'E', 'C'),
-    (7, 'E', 'B'),
-    (8, 'B', 'C'),
-]
+parent = dict()
+rank = dict()
 
-graph.sort()
+# estrutura de dados conjunto-disjunto
+# http://en.wikipedia.org/wiki/Disjoint-set_data_structure
 
-A = []
+def make_set(vertex):
+    parent[vertex] = vertex
+    rank[vertex] = 0
 
-S = []
+def find(vertex):
+    if parent[vertex] != vertex:
+        parent[vertex] = find(parent[vertex]) 
+    return parent[vertex]
 
-for edge in graph:
-    if not (edge[1] in S and edge[2] in S):
-        A.append(edge)
-        S.append(edge[1])
-        S.append(edge[2])
+def union(vertex1, vertex2):
+    root_vertex1 = find(vertex1)
+    root_vertex2 = find(vertex2)
+    
+    if root_vertex1 == root_vertex2: return
+    
+    if root_vertex1 < root_vertex2:
+        parent[root_vertex1] = root_vertex2
+    elif root_vertex1 > root_vertex2:
+        parent[root_vertex2] = root_vertex1
+    else:
+        parent[root_vertex2] = root_vertex1
+        rank[root_vertex1] += 1 
 
-print A
-print S
+def kruskal(vertexs, edges):
+    mst = []
+    for vertex in vertexs:
+        make_set(vertex)
+    
+    edges.sort()
+    
+    for edge in edges:
+        weight, vertex1, vertex2 = edge
+        if find(vertex1) != find(vertex2):
+            union(vertex1, vertex2)
+            mst.append(edge)
+    return mst
